@@ -18,9 +18,16 @@ class App extends Component {
     this.updatePost = this.updatePost.bind( this );
     this.deletePost = this.deletePost.bind( this );
     this.createPost = this.createPost.bind( this );
-    this.getPosts = this.getPosts.bind(this)
+    this.getPosts = this.getPosts.bind(this);
   }
-  
+
+  // componentDidMount() {
+  //   this.getPosts();
+  // }
+  componentDidMount = () => {
+    this.getPosts();
+  }
+
   getPosts() {
     axios.get(`https://practiceapi.devmountain.com/api/posts`)
       .then(response => {
@@ -30,9 +37,7 @@ class App extends Component {
       .catch(error => console.log(error))
   }
 
-  componentDidMount() {
-    this.getPosts();
-  }
+  
 
   updatePost(id, text) {
     axios.put(`https://practiceapi.devmountain.com/api/posts?id=${id}`, {text})
@@ -41,12 +46,18 @@ class App extends Component {
     })
   }
 
-  deletePost() {
-
+  deletePost(id) {
+    axios.delete(`https://practiceapi.devmountain.com/api/posts?id=${id}`)
+    .then(response => {
+      this.setState({posts: response.data})
+    })
+    .catch(error => console.log(error))
   }
 
-  createPost() {
-
+  createPost(text) {
+    axios.post('https://practiceapi.devmountain.com/api/posts', { text }).then( results => {
+      this.setState({ posts: results.data });
+    });
   }
 
   render() {
@@ -58,14 +69,15 @@ class App extends Component {
 
         <section className="App__content">
 
-          <Compose />
+          <Compose createPostFn={ this.createPost }/>
 
           {posts.map( post => (
             <Post key={ post.id } 
                   text={post.text} 
                   date={post.date}
                   id={post.id}
-                  updatePostFn={this.updatePost}/>
+                  updatePostFn={this.updatePost}
+                  deletePostFn={this.deletePost}/>
           ))}
           
         </section>
